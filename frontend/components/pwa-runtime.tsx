@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import { withAppBasePath } from '@/lib/api';
 
 function syncInstallAvailability() {
   window.dispatchEvent(new Event(window.__serveoneDeferredPrompt ? 'serveone:install-available' : 'serveone:install-unavailable'));
@@ -27,7 +28,7 @@ export function PwaRuntime() {
     window.addEventListener('appinstalled', onAppInstalled);
 
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/sw.js').catch((error) => {
+      navigator.serviceWorker.register(withAppBasePath('/sw.js')).catch((error) => {
         console.warn('Service worker registration failed', error);
       });
     }

@@ -22,6 +22,9 @@ class Settings(BaseSettings):
     first_creator_password: str = Field(alias="FIRST_CREATOR_PASSWORD")
     first_creator_full_name: str = Field(default="Creator", alias="FIRST_CREATOR_FULL_NAME")
     backend_cors_origins: str = Field(default="http://localhost:3000", alias="BACKEND_CORS_ORIGINS")
+    frontend_app_url: str | None = Field(default=None, alias="FRONTEND_APP_URL")
+    auth_cookie_secure: bool = Field(default=False, alias="AUTH_COOKIE_SECURE")
+    auth_cookie_samesite: str = Field(default="lax", alias="AUTH_COOKIE_SAMESITE")
     vapid_public_key: str | None = Field(default=None, alias="VAPID_PUBLIC_KEY")
     vapid_private_key: str | None = Field(default=None, alias="VAPID_PRIVATE_KEY")
     vapid_subject: str = Field(default="mailto:admin@serveone.local", alias="VAPID_SUBJECT")
@@ -33,6 +36,10 @@ class Settings(BaseSettings):
     @property
     def push_enabled(self) -> bool:
         return bool(self.vapid_public_key and self.vapid_private_key and self.vapid_subject)
+
+    @property
+    def cookie_samesite(self) -> str:
+        return self.auth_cookie_samesite.lower().strip() or "lax"
 
 
 @lru_cache

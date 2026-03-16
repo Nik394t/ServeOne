@@ -1,5 +1,83 @@
+const API_BASE_STORAGE_KEY = 'serveone-cloud-api-base-url';
+const API_QUERY_PARAM = 'api';
+const DEFAULT_PROXY_API_BASE = '/api/backend';
+
+function normalizeApiBase(value: string | null | undefined): string | null {
+  if (!value) return null;
+  const trimmed = value.trim();
+  if (!trimmed) return null;
+  return trimmed.replace(/\/$/, '');
+}
+
+function normalizeBasePath(value: string | null | undefined): string {
+  if (!value) return '';
+  const trimmed = value.trim();
+  if (!trimmed || trimmed === '/') return '';
+  const normalized = trimmed.replace(/^\/+|\/+$/g, '');
+  return normalized ? `/${normalized}` : '';
+}
+
+function readQueryApiBase(): string | null {
+  if (typeof window === 'undefined') return null;
+  return normalizeApiBase(new URLSearchParams(window.location.search).get(API_QUERY_PARAM));
+}
+
+function readStoredApiBase(): string | null {
+  if (typeof window === 'undefined') return null;
+  return normalizeApiBase(window.localStorage.getItem(API_BASE_STORAGE_KEY));
+}
+
+export function getExplicitApiBase(): string | null {
+  const fromEnv = normalizeApiBase(process.env.NEXT_PUBLIC_API_BASE_URL);
+  if (typeof window === 'undefined') return fromEnv;
+
+  const fromQuery = readQueryApiBase();
+  if (fromQuery) {
+    window.localStorage.setItem(API_BASE_STORAGE_KEY, fromQuery);
+    return fromQuery;
+  }
+
+  return readStoredApiBase() || fromEnv;
+}
+
+export function getRuntimeApiBase(): string {
+  return getExplicitApiBase() || DEFAULT_PROXY_API_BASE;
+}
+
+export function saveRuntimeApiBase(value: string): string {
+  if (typeof window === 'undefined') {
+    throw new Error('Runtime API URL можно сохранить только в браузере');
+  }
+  const normalized = normalizeApiBase(value);
+  if (!normalized) {
+    throw new Error('Укажи корректный Cloud API URL');
+  }
+  window.localStorage.setItem(API_BASE_STORAGE_KEY, normalized);
+  return normalized;
+}
+
+export function clearRuntimeApiBase(): void {
+  if (typeof window === 'undefined') return;
+  window.localStorage.removeItem(API_BASE_STORAGE_KEY);
+}
+
+export function getAppBasePath(): string {
+  return normalizeBasePath(process.env.NEXT_PUBLIC_BASE_PATH);
+}
+
+export function withAppBasePath(path: string): string {
+  const basePath = getAppBasePath();
+  const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+  return `${basePath}${normalizedPath}` || '/';
+}
+
+function buildApiUrl(path: string): string {
+  const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+  return `${getRuntimeApiBase()}${normalizedPath}`;
+}
+
 export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
-  const response = await fetch(`/api/backend${path}`, {
+  const response = await fetch(buildApiUrl(path), {
     ...init,
     credentials: 'include',
     headers: {

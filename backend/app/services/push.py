@@ -1,6 +1,7 @@
 import json
 import logging
 from dataclasses import dataclass
+from urllib.parse import urljoin
 
 from fastapi import HTTPException, status
 from pywebpush import WebPushException, webpush
@@ -25,6 +26,16 @@ class PushDeliveryStats:
     sent: int = 0
     removed: int = 0
     failed: int = 0
+
+
+def _resolve_frontend_url(url: str, settings: Settings) -> str:
+    value = (url or '').strip() or '/dashboard'
+    if value.startswith('http://') or value.startswith('https://'):
+        return value
+    if not settings.frontend_app_url:
+        return value
+    base = settings.frontend_app_url.rstrip('/') + '/'
+    return urljoin(base, value.lstrip('/'))
 
 
 def build_push_state(db: Session, current_user: User, settings: Settings) -> PushStateRead:
@@ -122,7 +133,7 @@ def send_push_to_users(
         {
             'title': title.strip() or 'ServeOne',
             'body': body.strip() or 'Новое уведомление',
-            'url': url.strip() or '/dashboard',
+            'url': _resolve_frontend_url(url, settings),
         }
     )
 

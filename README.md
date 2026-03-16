@@ -51,6 +51,25 @@ docker compose up -d --build
 - frontend: `http://localhost:3000`
 - backend docs: `http://localhost:8000/docs`
 
+## GitHub Pages + отдельный backend
+Для схемы, как в `Daily`, теперь есть отдельная подготовка:
+- frontend статически публикуется в GitHub Pages
+- backend запускается отдельно
+- frontend умеет брать `Cloud API URL` из:
+  - `NEXT_PUBLIC_API_BASE_URL`
+  - query param `?api=https://...`
+  - localStorage через поле в интерфейсе
+
+Файлы:
+- `/Users/pro/Desktop/ЗАВЕРШЕННЫЕ ПРОЕКТЫ/bot_mediaSD/web_app/.github/workflows/pages.yml`
+- `/Users/pro/Desktop/ЗАВЕРШЕННЫЕ ПРОЕКТЫ/bot_mediaSD/web_app/.env.pages.example`
+- `/Users/pro/Desktop/ЗАВЕРШЕННЫЕ ПРОЕКТЫ/bot_mediaSD/web_app/GITHUB_PAGES.md`
+- `/Users/pro/Desktop/ЗАВЕРШЕННЫЕ ПРОЕКТЫ/bot_mediaSD/web_app/infra/scripts/start-pages-backend.sh`
+- `/Users/pro/Desktop/ЗАВЕРШЕННЫЕ ПРОЕКТЫ/bot_mediaSD/web_app/infra/scripts/start-pages-backend.bat`
+
+Полная инструкция:
+- `/Users/pro/Desktop/ЗАВЕРШЕННЫЕ ПРОЕКТЫ/bot_mediaSD/web_app/GITHUB_PAGES.md`
+
 ## Временный запуск через GitHub Codespaces
 Для быстрого входа в приложение без собственного сервера добавлена конфигурация Codespaces:
 - `/Users/pro/Desktop/ЗАВЕРШЕННЫЕ ПРОЕКТЫ/bot_mediaSD/web_app/.devcontainer/devcontainer.json`

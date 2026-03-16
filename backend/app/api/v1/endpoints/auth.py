@@ -24,8 +24,24 @@ settings = get_settings()
 def _set_auth_cookies(response: Response, access_token: str, refresh_token: str, remember_me: bool) -> None:
     max_age_access = settings.jwt_access_expire_minutes * 60
     max_age_refresh = (settings.jwt_refresh_expire_days if remember_me else 7) * 24 * 60 * 60
-    response.set_cookie("access_token", access_token, httponly=True, samesite="lax", secure=False, max_age=max_age_access, path="/")
-    response.set_cookie("refresh_token", refresh_token, httponly=True, samesite="lax", secure=False, max_age=max_age_refresh, path="/")
+    response.set_cookie(
+        "access_token",
+        access_token,
+        httponly=True,
+        samesite=settings.cookie_samesite,
+        secure=settings.auth_cookie_secure,
+        max_age=max_age_access,
+        path="/",
+    )
+    response.set_cookie(
+        "refresh_token",
+        refresh_token,
+        httponly=True,
+        samesite=settings.cookie_samesite,
+        secure=settings.auth_cookie_secure,
+        max_age=max_age_refresh,
+        path="/",
+    )
 
 
 def _clear_auth_cookies(response: Response) -> None:

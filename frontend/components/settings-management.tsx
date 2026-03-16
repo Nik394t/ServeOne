@@ -3,7 +3,19 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import Image from 'next/image';
 
-import { apiFetch, AuthResponse, PushStateResponse, PushSubscriptionRecord, PushTestResponse, UserRecord } from '@/lib/api';
+import {
+  apiFetch,
+  AuthResponse,
+  clearRuntimeApiBase,
+  getExplicitApiBase,
+  getRuntimeApiBase,
+  PushStateResponse,
+  PushSubscriptionRecord,
+  PushTestResponse,
+  saveRuntimeApiBase,
+  UserRecord,
+  withAppBasePath
+} from '@/lib/api';
 
 function formatDate(value: string) {
   return new Intl.DateTimeFormat('ru-RU', {
@@ -51,6 +63,8 @@ export function SettingsManagement() {
   const [notificationPermission, setNotificationPermission] = useState<NotificationPermission>('default');
   const [installAvailable, setInstallAvailable] = useState(false);
   const [standalone, setStandalone] = useState(false);
+  const [apiBaseInput, setApiBaseInput] = useState('');
+  const [resolvedApiBase, setResolvedApiBase] = useState(getRuntimeApiBase());
 
   const loadData = useCallback(async () => {
     setLoading(true);
@@ -78,10 +92,19 @@ export function SettingsManagement() {
     setStandalone(isStandaloneMode());
   }, []);
 
+  const syncApiState = useCallback((message?: string) => {
+    setApiBaseInput(getExplicitApiBase() || '');
+    setResolvedApiBase(getRuntimeApiBase());
+    if (message) {
+      setSuccess(message);
+    }
+  }, []);
+
   useEffect(() => {
     void loadData();
     syncBrowserState();
-  }, [loadData, syncBrowserState]);
+    syncApiState();
+  }, [loadData, syncBrowserState, syncApiState]);
 
   useEffect(() => {
     const handler = () => syncBrowserState();
@@ -219,7 +242,7 @@ export function SettingsManagement() {
         body: JSON.stringify({
           title: 'ServeOne',
           body: 'Тестовое push-уведомление. Если ты его видишь, канал работает.',
-          url: '/dashboard/messages'
+          url: withAppBasePath('/dashboard/messages')
         })
       });
       setPushState((current) =>
@@ -255,6 +278,22 @@ export function SettingsManagement() {
     } finally {
       setBusyKey(null);
     }
+  }
+
+  function handleSaveApiBase() {
+    setError(null);
+    try {
+      const saved = saveRuntimeApiBase(apiBaseInput);
+      syncApiState(`Cloud API URL сохранён: ${saved}`);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Не удалось сохранить Cloud API URL');
+    }
+  }
+
+  function handleClearApiBase() {
+    setError(null);
+    clearRuntimeApiBase();
+    syncApiState('Runtime API URL очищен. Приложение вернулось к локальному прокси `/api/backend`.');
   }
 
   if (loading || !pushState || !currentUser) {
@@ -296,6 +335,40 @@ export function SettingsManagement() {
               <p className="mt-1 text-[11px] uppercase tracking-[0.18em] text-muted">
                 {pushState.enabled ? 'Сервер настроен' : 'Сервер не настроен'}
               </p>
+            </div>
+          </div>
+
+          <div className="mt-6 rounded-[24px] border border-line/70 bg-white/80 p-4">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="text-sm font-semibold text-ink">Cloud API URL</p>
+                <p className="text-xs leading-6 text-muted">
+                  Для режима GitHub Pages frontend подключается к backend по внешнему HTTPS URL.
+                </p>
+              </div>
+              <div className="dashboard-chip">{resolvedApiBase}</div>
+            </div>
+            <div className="mt-3 flex flex-col gap-3 sm:flex-row">
+              <input
+                value={apiBaseInput}
+                onChange={(event) => setApiBaseInput(event.target.value)}
+                className="w-full rounded-2xl border border-line bg-white px-4 py-3 text-sm text-ink outline-none transition focus:border-brand"
+                placeholder="https://your-backend.example.com/api/v1"
+              />
+              <button
+                type="button"
+                onClick={handleSaveApiBase}
+                className="rounded-2xl border border-line/70 bg-white px-4 py-3 text-sm font-semibold text-ink transition hover:border-brand hover:text-brand"
+              >
+                Сохранить API
+              </button>
+              <button
+                type="button"
+                onClick={handleClearApiBase}
+                className="rounded-2xl border border-line/70 bg-white px-4 py-3 text-sm font-semibold text-muted transition hover:border-accent hover:text-accent"
+              >
+                Сбросить
+              </button>
             </div>
           </div>
         </div>

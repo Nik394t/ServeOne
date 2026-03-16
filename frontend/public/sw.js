@@ -1,3 +1,15 @@
+function resolveAppUrl(value) {
+  if (typeof value === 'string' && /^https?:\/\//i.test(value)) {
+    return value;
+  }
+  const normalized = typeof value === 'string' && value.trim() ? value.trim().replace(/^\/+/, '') : 'dashboard/messages/';
+  return new URL(normalized, self.registration.scope).toString();
+}
+
+function resolveAssetUrl(value) {
+  return new URL(value.replace(/^\/+/, ''), self.registration.scope).toString();
+}
+
 self.addEventListener('install', () => {
   self.skipWaiting();
 });
@@ -10,7 +22,7 @@ self.addEventListener('push', (event) => {
   let payload = {
     title: 'ServeOne',
     body: 'Новое уведомление',
-    url: '/dashboard/messages'
+    url: resolveAppUrl('dashboard/messages/')
   };
 
   if (event.data) {
@@ -24,10 +36,10 @@ self.addEventListener('push', (event) => {
   event.waitUntil(
     self.registration.showNotification(payload.title, {
       body: payload.body,
-      icon: '/icons/icon-192.png',
-      badge: '/icons/icon-192.png',
+      icon: resolveAssetUrl('icons/icon-192.png'),
+      badge: resolveAssetUrl('icons/icon-192.png'),
       data: {
-        url: payload.url || '/dashboard/messages'
+        url: resolveAppUrl(payload.url)
       }
     })
   );
@@ -35,7 +47,7 @@ self.addEventListener('push', (event) => {
 
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
-  const targetUrl = event.notification.data?.url || '/dashboard/messages';
+  const targetUrl = resolveAppUrl(event.notification.data?.url);
 
   event.waitUntil(
     self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clients) => {

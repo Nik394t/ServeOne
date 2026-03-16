@@ -1,12 +1,6 @@
 import { LoginForm } from '@/components/login-form';
 
-export default async function LoginPage({
-  searchParams
-}: {
-  searchParams?: Promise<{ next?: string }>;
-}) {
-  const resolvedSearchParams = await searchParams;
-
+export default function LoginPage() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-[radial-gradient(circle_at_top,_#fdfefe,_#eef3f8_42%,_#dce5f1_100%)] px-4 py-8">
       <div className="grid w-full max-w-6xl gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
@@ -31,7 +25,7 @@ export default async function LoginPage({
             ))}
           </div>
         </div>
-        <LoginForm nextPath={resolvedSearchParams?.next || '/dashboard'} />
+        <LoginForm nextPath="/dashboard" />
       </div>
     </div>
   );

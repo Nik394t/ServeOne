@@ -1,10 +1,17 @@
 'use client';
 
-import { FormEvent, useState } from 'react';
+import { FormEvent, useEffect, useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 
-import { apiFetch, AuthResponse } from '@/lib/api';
+import {
+  apiFetch,
+  AuthResponse,
+  clearRuntimeApiBase,
+  getExplicitApiBase,
+  getRuntimeApiBase,
+  saveRuntimeApiBase
+} from '@/lib/api';
 
 export function LoginForm({ nextPath = '/dashboard' }: { nextPath?: string }) {
   const router = useRouter();
@@ -14,17 +21,48 @@ export function LoginForm({ nextPath = '/dashboard' }: { nextPath?: string }) {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [apiBaseInput, setApiBaseInput] = useState('');
+  const [apiHint, setApiHint] = useState<string | null>(null);
+  const [resolvedApiBase, setResolvedApiBase] = useState<string>(getRuntimeApiBase());
+
+  useEffect(() => {
+    const explicitApiBase = getExplicitApiBase();
+    setApiBaseInput(explicitApiBase || '');
+    setResolvedApiBase(getRuntimeApiBase());
+  }, []);
+
+  function syncApiState(message?: string) {
+    setApiBaseInput(getExplicitApiBase() || '');
+    setResolvedApiBase(getRuntimeApiBase());
+    setApiHint(message || null);
+  }
+
+  function handleSaveApiBase() {
+    try {
+      const saved = saveRuntimeApiBase(apiBaseInput);
+      syncApiState(`Cloud API URL сохранён: ${saved}`);
+    } catch (err) {
+      setApiHint(err instanceof Error ? err.message : 'Не удалось сохранить Cloud API URL');
+    }
+  }
+
+  function handleClearApiBase() {
+    clearRuntimeApiBase();
+    syncApiState('Runtime API URL очищен. Приложение вернулось к локальному прокси `/api/backend`.');
+  }
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
     setLoading(true);
     setError(null);
+    const resolvedNextPath =
+      typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('next') || nextPath : nextPath;
     try {
       await apiFetch<AuthResponse>('/auth/login', {
         method: 'POST',
         body: JSON.stringify({ login, password, remember_me: rememberMe })
       });
-      router.replace(nextPath);
+      router.replace(resolvedNextPath);
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Не удалось войти');
@@ -85,6 +123,41 @@ export function LoginForm({ nextPath = '/dashboard' }: { nextPath?: string }) {
             </button>
           </div>
         </label>
+      </div>
+
+      <div className="rounded-[24px] border border-line/70 bg-white/72 p-4">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="text-sm font-semibold text-ink">Cloud API URL</p>
+            <p className="text-xs leading-6 text-muted">
+              Для GitHub Pages укажи адрес backend вручную. Можно использовать query-параметр `?api=https://...`.
+            </p>
+          </div>
+          <div className="dashboard-chip">{resolvedApiBase}</div>
+        </div>
+        <div className="mt-3 flex flex-col gap-3 sm:flex-row">
+          <input
+            value={apiBaseInput}
+            onChange={(e) => setApiBaseInput(e.target.value)}
+            className="w-full rounded-2xl border border-line bg-white px-4 py-3 text-sm text-ink outline-none transition focus:border-brand"
+            placeholder="https://your-backend.example.com/api/v1"
+          />
+          <button
+            type="button"
+            onClick={handleSaveApiBase}
+            className="rounded-2xl border border-line/70 bg-white px-4 py-3 text-sm font-semibold text-ink transition hover:border-brand hover:text-brand"
+          >
+            Сохранить API
+          </button>
+          <button
+            type="button"
+            onClick={handleClearApiBase}
+            className="rounded-2xl border border-line/70 bg-white px-4 py-3 text-sm font-semibold text-muted transition hover:border-accent hover:text-accent"
+          >
+            Сбросить
+          </button>
+        </div>
+        {apiHint ? <p className="mt-3 text-xs leading-6 text-muted">{apiHint}</p> : null}
       </div>
 
       <label className="flex items-center gap-3 text-sm text-muted">
