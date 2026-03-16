@@ -1,0 +1,21 @@
+services:
+  app:
+    image: mcr.microsoft.com/devcontainers/universal:2-linux
+    command: sleep infinity
+    volumes:
+      - ..:/workspaces/ServeOne:cached
+    depends_on:
+      - db
+
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: serveone
+      POSTGRES_USER: serveone
+      POSTGRES_PASSWORD: serveone_dev_password
+    volumes:
+      - postgres_codespaces:/var/lib/postgresql/data
+
+volumes:
+  postgres_codespaces:

@@ -12,3 +12,4 @@ postgres_data
 infra/backups
 coverage
 .DS_Store
+.devcontainer/logs

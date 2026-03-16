@@ -1,0 +1,36 @@
+{
+  "name": "ServeOne Codespace",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "app",
+  "runServices": ["db", "app"],
+  "workspaceFolder": "/workspaces/ServeOne",
+  "shutdownAction": "stopCompose",
+  "forwardPorts": [3000, 8000],
+  "portsAttributes": {
+    "3000": {
+      "label": "ServeOne App",
+      "onAutoForward": "openPreview",
+      "visibility": "private"
+    },
+    "8000": {
+      "label": "ServeOne API",
+      "onAutoForward": "silent",
+      "visibility": "private"
+    }
+  },
+  "postCreateCommand": "bash .devcontainer/post-create.sh",
+  "postStartCommand": "bash .devcontainer/post-start.sh",
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "bash"
+      },
+      "extensions": [
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode"
+      ]
+    }
+  }
+}

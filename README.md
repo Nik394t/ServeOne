@@ -51,6 +51,28 @@ docker compose up -d --build
 - frontend: `http://localhost:3000`
 - backend docs: `http://localhost:8000/docs`
 
+## Временный запуск через GitHub Codespaces
+Для быстрого входа в приложение без собственного сервера добавлена конфигурация Codespaces:
+- `/Users/pro/Desktop/ЗАВЕРШЕННЫЕ ПРОЕКТЫ/bot_mediaSD/web_app/.devcontainer/devcontainer.json`
+- `/Users/pro/Desktop/ЗАВЕРШЕННЫЕ ПРОЕКТЫ/bot_mediaSD/web_app/.devcontainer/docker-compose.yml`
+
+Что происходит:
+- Codespaces поднимает dev-контур
+- автоматически пробрасываются порты `3000` и `8000`
+- frontend открывается в preview на порту `3000`
+- backend стартует на порту `8000`
+
+Как открыть:
+1. В репозитории GitHub нажать `Code`
+2. Перейти в `Codespaces`
+3. Нажать `Create codespace on main`
+4. Дождаться инициализации
+5. Открыть forwarded port `3000`
+
+Важно:
+- это подходит для временного входа и просмотра приложения
+- это не production-хостинг
+
 ## Production deploy
 Основной production-стек:
 - `/Users/pro/Desktop/ЗАВЕРШЕННЫЕ ПРОЕКТЫ/bot_mediaSD/web_app/docker-compose.prod.yml`
