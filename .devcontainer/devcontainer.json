@@ -5,6 +5,14 @@
   "runServices": ["db", "app"],
   "workspaceFolder": "/workspaces/ServeOne",
   "shutdownAction": "stopCompose",
+  "features": {
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "22"
+    },
+    "ghcr.io/devcontainers/features/python:1": {
+      "version": "3.12"
+    }
+  },
   "forwardPorts": [3000, 8000],
   "portsAttributes": {
     "3000": {

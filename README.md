@@ -72,6 +72,7 @@ docker compose up -d --build
 Важно:
 - это подходит для временного входа и просмотра приложения
 - это не production-хостинг
+- если старый Codespace упал по `low disk space`, его нужно удалить и создать новый: конфигурация уже облегчена и переведена на более лёгкий devcontainer-образ
 - если preview не поднялся автоматически, открыть терминал Codespaces и посмотреть логи:
   - `cat .devcontainer/logs/backend.log`
   - `cat .devcontainer/logs/frontend.log`

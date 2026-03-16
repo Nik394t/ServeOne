@@ -4,13 +4,6 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT_DIR"
 
-if [[ -n "${NVM_DIR:-}" && -s "$NVM_DIR/nvm.sh" ]]; then
-  # Keep Codespaces frontend runtime aligned with the project target.
-  . "$NVM_DIR/nvm.sh"
-  nvm install 22 >/dev/null
-  nvm use 22 >/dev/null
-fi
-
 if [[ ! -f .env ]]; then
   cp .env.example .env
 fi
@@ -33,10 +26,10 @@ if [[ ! -d backend/.venv ]]; then
 fi
 
 source backend/.venv/bin/activate
-pip install --upgrade pip >/dev/null
-pip install -r backend/requirements.txt >/dev/null
+PIP_NO_CACHE_DIR=1 pip install --upgrade pip >/dev/null
+PIP_NO_CACHE_DIR=1 pip install -r backend/requirements.txt >/dev/null
 
 deactivate
 
 cd frontend
-npm ci >/dev/null
+npm ci --no-audit --no-fund >/dev/null
