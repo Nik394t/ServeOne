@@ -72,6 +72,15 @@ docker compose up -d --build
 Важно:
 - это подходит для временного входа и просмотра приложения
 - это не production-хостинг
+- если preview не поднялся автоматически, открыть терминал Codespaces и посмотреть логи:
+  - `cat .devcontainer/logs/backend.log`
+  - `cat .devcontainer/logs/frontend.log`
+- ручной запуск внутри Codespaces:
+
+```bash
+cd /workspaces/ServeOne
+bash .devcontainer/post-start.sh
+```
 
 ## Production deploy
 Основной production-стек:
