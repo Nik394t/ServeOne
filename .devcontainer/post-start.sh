@@ -66,3 +66,8 @@ echo "ServeOne Codespace preview is starting."
 echo " - Frontend: port 3000"
 echo " - Backend:  port 8000"
 echo " - Logs: $LOG_DIR"
+if [[ -n "${CODESPACE_NAME:-}" ]]; then
+  echo " - App URL:  https://${CODESPACE_NAME}-3000.app.github.dev/"
+  echo " - API URL:  https://${CODESPACE_NAME}-8000.app.github.dev/api/v1/health"
+  echo " - Open the App URL in the external browser, not in Simple Browser."
+fi
