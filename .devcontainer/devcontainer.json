@@ -18,7 +18,7 @@
     "3000": {
       "label": "ServeOne App",
       "onAutoForward": "openBrowser",
-      "visibility": "private"
+      "visibility": "public"
     },
     "8000": {
       "label": "ServeOne API",
