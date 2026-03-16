@@ -68,11 +68,13 @@ docker compose up -d --build
 3. Нажать `Create codespace on main`
 4. Дождаться инициализации
 5. Открыть forwarded port `3000`
+6. Если встроенный preview пустой, открыть порт `3000` через внешний браузер, а не через `Простой браузер`
 
 Важно:
 - это подходит для временного входа и просмотра приложения
 - это не production-хостинг
 - если старый Codespace упал по `low disk space`, его нужно удалить и создать новый: конфигурация уже облегчена и переведена на более лёгкий devcontainer-образ
+- корневой путь `/` теперь сразу открывает экран входа, чтобы preview не зависел от server-side redirect
 - если preview не поднялся автоматически, открыть терминал Codespaces и посмотреть логи:
   - `cat .devcontainer/logs/backend.log`
   - `cat .devcontainer/logs/frontend.log`
