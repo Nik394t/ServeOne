@@ -1,26 +1,31 @@
-name: web-app-ci
+name: serveone-ci
 
 on:
   push:
-    paths:
-      - 'web_app/**'
+    branches:
+      - main
   pull_request:
-    paths:
-      - 'web_app/**'
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   frontend:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: web_app/frontend
+        working-directory: frontend
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
-          cache-dependency-path: web_app/frontend/package-lock.json
+          cache-dependency-path: frontend/package-lock.json
+
       - run: npm ci
       - run: npm run lint
       - run: npm run build
@@ -29,12 +34,15 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: web_app/backend
+        working-directory: backend
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+
       - run: python -m pip install --upgrade pip
       - run: pip install -r requirements.txt
       - run: python -m compileall app
+      - run: python -m py_compile ../infra/scripts/smoke-test.py
