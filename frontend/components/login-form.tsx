@@ -1,6 +1,7 @@
 'use client';
 
 import { FormEvent, useState } from 'react';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 
 import { apiFetch, AuthResponse } from '@/lib/api';
@@ -35,6 +36,16 @@ export function LoginForm({ nextPath = '/dashboard' }: { nextPath?: string }) {
   return (
     <form onSubmit={handleSubmit} className="space-y-5 rounded-[28px] border border-line/70 bg-panel/90 p-6 shadow-shell backdrop-blur xl:p-8">
       <div className="space-y-2">
+        <div className="inline-flex rounded-[26px] border border-white/80 bg-white/88 p-2 shadow-panel">
+          <Image
+            src="/icons/icon-192.png"
+            alt="ServeOne"
+            width={74}
+            height={74}
+            className="rounded-[18px]"
+            priority
+          />
+        </div>
         <p className="text-xs font-semibold uppercase tracking-[0.24em] text-brand">ServeOne</p>
         <h1 className="text-3xl font-semibold text-ink">Вход в систему</h1>
         <p className="max-w-sm text-sm leading-6 text-muted">

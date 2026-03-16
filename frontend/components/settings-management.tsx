@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import Image from 'next/image';
 
 import { apiFetch, AuthResponse, PushStateResponse, PushSubscriptionRecord, PushTestResponse, UserRecord } from '@/lib/api';
 
@@ -305,6 +306,15 @@ export function SettingsManagement() {
           <p className="mt-3 text-sm leading-7 text-white/75">
             После установки приложение открывается без рамок браузера. На iPhone, если кнопка недоступна, используй системное меню «Поделиться → На экран Домой».
           </p>
+          <div className="mt-5 inline-flex rounded-[28px] border border-white/12 bg-white/10 p-2 shadow-[0_14px_38px_rgba(8,19,35,0.22)]">
+            <Image
+              src="/icons/icon-192.png"
+              alt="ServeOne logo"
+              width={96}
+              height={96}
+              className="rounded-[22px]"
+            />
+          </div>
           <div className="mt-6 grid gap-3">
             <button
               type="button"
