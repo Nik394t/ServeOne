@@ -109,7 +109,15 @@ async function tryRefreshSession(): Promise<boolean> {
 }
 
 export async function apiFetch<T>(path: string, init?: RequestInit, options?: { skipRefresh?: boolean }): Promise<T> {
-  const response = await fetch(buildApiUrl(path), buildRequestInit(init));
+  let response: Response;
+  try {
+    response = await fetch(buildApiUrl(path), buildRequestInit(init));
+  } catch (error) {
+    if (error instanceof TypeError) {
+      throw new Error('Сервер недоступен. Проверь Cloud API URL или подключение backend.');
+    }
+    throw error;
+  }
 
   if (!response.ok && !options?.skipRefresh && shouldAttemptRefresh(path, response.status)) {
     const refreshed = await tryRefreshSession();
