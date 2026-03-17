@@ -13,11 +13,27 @@ import {
   saveRuntimeApiBase
 } from '@/lib/api';
 
+const REMEMBERED_LOGIN_KEY = 'serveone-remembered-login';
+
+function readRememberedLogin(): string {
+  if (typeof window === 'undefined') return '';
+  return window.localStorage.getItem(REMEMBERED_LOGIN_KEY)?.trim() || '';
+}
+
+function persistRememberedLogin(login: string, rememberMe: boolean) {
+  if (typeof window === 'undefined') return;
+  if (rememberMe && login.trim()) {
+    window.localStorage.setItem(REMEMBERED_LOGIN_KEY, login.trim());
+    return;
+  }
+  window.localStorage.removeItem(REMEMBERED_LOGIN_KEY);
+}
+
 export function LoginForm({ nextPath = '/dashboard' }: { nextPath?: string }) {
   const router = useRouter();
-  const [login, setLogin] = useState('Nikki394t');
-  const [password, setPassword] = useState('Tfz+3940');
-  const [rememberMe, setRememberMe] = useState(true);
+  const [login, setLogin] = useState('');
+  const [password, setPassword] = useState('');
+  const [rememberMe, setRememberMe] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -29,7 +45,23 @@ export function LoginForm({ nextPath = '/dashboard' }: { nextPath?: string }) {
     const explicitApiBase = getExplicitApiBase();
     setApiBaseInput(explicitApiBase || '');
     setResolvedApiBase(getRuntimeApiBase());
-  }, []);
+    const rememberedLogin = readRememberedLogin();
+    if (rememberedLogin) {
+      setLogin(rememberedLogin);
+      setRememberMe(true);
+    }
+    let isMounted = true;
+    void apiFetch<AuthResponse>('/auth/me')
+      .then(() => {
+        if (!isMounted) return;
+        router.replace(nextPath);
+        router.refresh();
+      })
+      .catch(() => undefined);
+    return () => {
+      isMounted = false;
+    };
+  }, [nextPath, router]);
 
   function syncApiState(message?: string) {
     setApiBaseInput(getExplicitApiBase() || '');
@@ -53,6 +85,11 @@ export function LoginForm({ nextPath = '/dashboard' }: { nextPath?: string }) {
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
+    const nextLogin = login.trim();
+    if (!nextLogin || !password.trim()) {
+      setError('Введи логин и пароль');
+      return;
+    }
     setLoading(true);
     setError(null);
     const resolvedNextPath =
@@ -60,8 +97,9 @@ export function LoginForm({ nextPath = '/dashboard' }: { nextPath?: string }) {
     try {
       await apiFetch<AuthResponse>('/auth/login', {
         method: 'POST',
-        body: JSON.stringify({ login, password, remember_me: rememberMe })
+        body: JSON.stringify({ login: nextLogin, password, remember_me: rememberMe })
       });
+      persistRememberedLogin(nextLogin, rememberMe);
       router.replace(resolvedNextPath);
       router.refresh();
     } catch (err) {
@@ -72,20 +110,20 @@ export function LoginForm({ nextPath = '/dashboard' }: { nextPath?: string }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5 rounded-[28px] border border-line/70 bg-panel/90 p-6 shadow-shell backdrop-blur xl:p-8">
+    <form onSubmit={handleSubmit} className="space-y-4 rounded-[24px] border border-line/70 bg-panel/90 p-4 shadow-shell backdrop-blur sm:space-y-5 sm:p-6 xl:p-8">
       <div className="space-y-2">
-        <div className="inline-flex rounded-[26px] border border-white/80 bg-white/88 p-2 shadow-panel">
+        <div className="inline-flex rounded-[22px] border border-white/80 bg-white/88 p-2 shadow-panel sm:rounded-[26px]">
           <Image
             src="/icons/icon-192.png"
             alt="ServeOne"
-            width={74}
-            height={74}
-            className="rounded-[18px]"
+            width={64}
+            height={64}
+            className="rounded-[16px] sm:h-[74px] sm:w-[74px] sm:rounded-[18px]"
             priority
           />
         </div>
         <p className="text-xs font-semibold uppercase tracking-[0.24em] text-brand">ServeOne</p>
-        <h1 className="text-3xl font-semibold text-ink">Вход в систему</h1>
+        <h1 className="text-2xl font-semibold text-ink sm:text-3xl">Вход в систему</h1>
         <p className="max-w-sm text-sm leading-6 text-muted">
           Рабочее пространство команды. Вход по логину и паролю, выданным создателем или администратором.
         </p>
@@ -125,16 +163,14 @@ export function LoginForm({ nextPath = '/dashboard' }: { nextPath?: string }) {
         </label>
       </div>
 
-      <div className="rounded-[24px] border border-line/70 bg-white/72 p-4">
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <p className="text-sm font-semibold text-ink">Cloud API URL</p>
-            <p className="text-xs leading-6 text-muted">
-              Для GitHub Pages укажи адрес backend вручную. Можно использовать query-параметр `?api=https://...`.
-            </p>
-          </div>
-          <div className="dashboard-chip">{resolvedApiBase}</div>
-        </div>
+      <details className="rounded-[22px] border border-line/70 bg-white/72 p-4">
+        <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-sm font-semibold text-ink">
+          <span>Cloud API URL</span>
+          <span className="dashboard-chip max-w-[180px] truncate sm:max-w-[260px]">{resolvedApiBase}</span>
+        </summary>
+        <p className="mt-3 text-xs leading-6 text-muted">
+          Для GitHub Pages укажи адрес backend вручную. Можно использовать query-параметр `?api=https://...`.
+        </p>
         <div className="mt-3 flex flex-col gap-3 sm:flex-row">
           <input
             value={apiBaseInput}
@@ -158,7 +194,7 @@ export function LoginForm({ nextPath = '/dashboard' }: { nextPath?: string }) {
           </button>
         </div>
         {apiHint ? <p className="mt-3 text-xs leading-6 text-muted">{apiHint}</p> : null}
-      </div>
+      </details>
 
       <label className="flex items-center gap-3 text-sm text-muted">
         <input

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { apiFetch, AssignmentRecord, AuthResponse, ScheduleWeekResponse, UserRecord } from '@/lib/api';
 
@@ -8,6 +8,17 @@ type HoldDraft = {
   user_id: string;
   remaining: string;
 };
+
+function buildHoldDraftState(week: ScheduleWeekResponse): Record<number, HoldDraft> {
+  const nextDrafts: Record<number, HoldDraft> = {};
+  for (const assignment of week.assignments) {
+    nextDrafts[assignment.position_id] = {
+      user_id: String(assignment.hold?.user_id ?? assignment.user_id ?? ''),
+      remaining: String(assignment.hold?.remaining ?? 1)
+    };
+  }
+  return nextDrafts;
+}
 
 function formatServiceDate(value: string) {
   return new Intl.DateTimeFormat('ru-RU', {
@@ -38,8 +49,15 @@ export function ScheduleManagement() {
 
   const canManage = currentUser?.role === 'creator' || currentUser?.role === 'admin';
 
-  async function loadData() {
-    setLoading(true);
+  const applyScheduleWeek = useCallback((week: ScheduleWeekResponse) => {
+    setSchedule(week);
+    setHoldDrafts(buildHoldDraftState(week));
+  }, []);
+
+  const loadData = useCallback(async (showSpinner = true) => {
+    if (showSpinner) {
+      setLoading(true);
+    }
     setError(null);
     try {
       const [me, week] = await Promise.all([
@@ -47,25 +65,19 @@ export function ScheduleManagement() {
         apiFetch<ScheduleWeekResponse>('/schedule/upcoming')
       ]);
       setCurrentUser(me.user);
-      setSchedule(week);
-      const nextDrafts: Record<number, HoldDraft> = {};
-      for (const assignment of week.assignments) {
-        nextDrafts[assignment.position_id] = {
-          user_id: String(assignment.hold?.user_id ?? assignment.user_id ?? ''),
-          remaining: String(assignment.hold?.remaining ?? 1)
-        };
-      }
-      setHoldDrafts(nextDrafts);
+      applyScheduleWeek(week);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Не удалось загрузить расписание');
     } finally {
-      setLoading(false);
+      if (showSpinner) {
+        setLoading(false);
+      }
     }
-  }
+  }, [applyScheduleWeek]);
 
   useEffect(() => {
     void loadData();
-  }, []);
+  }, [loadData]);
 
   useEffect(() => {
     if (!success) return;
@@ -88,13 +100,20 @@ export function ScheduleManagement() {
     );
   }, [currentUser, schedule]);
 
-  async function runAction(key: string, action: () => Promise<void>, successMessage: string) {
+  async function runAction<T>(
+    key: string,
+    action: () => Promise<T>,
+    successMessage: string,
+    options?: { afterSuccess?: (result: T) => Promise<void> | void }
+  ) {
     setBusyKey(key);
     setError(null);
     try {
-      await action();
+      const result = await action();
+      if (options?.afterSuccess) {
+        await options.afterSuccess(result);
+      }
       setSuccess(successMessage);
-      await loadData();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Операция не выполнена');
     } finally {
@@ -109,8 +128,9 @@ export function ScheduleManagement() {
         apiFetch<ScheduleWeekResponse>(`/schedule/assignments/${assignmentId}`, {
           method: 'PATCH',
           body: JSON.stringify({ user_id: value ? Number(value) : null })
-        }).then(() => undefined),
-      'Основное назначение обновлено'
+        }),
+      'Основное назначение обновлено',
+      { afterSuccess: applyScheduleWeek }
     );
   }
 
@@ -121,8 +141,9 @@ export function ScheduleManagement() {
         apiFetch<ScheduleWeekResponse>(`/schedule/assignments/${assignmentId}/partner`, {
           method: 'PATCH',
           body: JSON.stringify({ partner_user_id: value ? Number(value) : null })
-        }).then(() => undefined),
-      'Напарник обновлён'
+        }),
+      'Напарник обновлён',
+      { afterSuccess: applyScheduleWeek }
     );
   }
 
@@ -138,16 +159,18 @@ export function ScheduleManagement() {
             user_id: Number(draft.user_id),
             remaining: Number(draft.remaining)
           })
-        }).then(() => undefined),
-      'Фиксация сохранена'
+        }),
+      'Фиксация сохранена',
+      { afterSuccess: applyScheduleWeek }
     );
   }
 
   async function clearHold(holdId: number) {
     await runAction(
       `hold-clear:${holdId}`,
-      () => apiFetch<ScheduleWeekResponse>(`/schedule/holds/${holdId}`, { method: 'DELETE' }).then(() => undefined),
-      'Фиксация снята'
+      () => apiFetch<ScheduleWeekResponse>(`/schedule/holds/${holdId}`, { method: 'DELETE' }),
+      'Фиксация снята',
+      { afterSuccess: applyScheduleWeek }
     );
   }
 
@@ -159,14 +182,15 @@ export function ScheduleManagement() {
       () =>
         apiFetch<{ status: string; week_id: string }>(`/schedule/weeks/${schedule.week_id}/complete`, {
           method: 'POST'
-        }).then(() => undefined),
-      'Служение завершено'
+        }),
+      'Служение завершено',
+      { afterSuccess: async () => await loadData(false) }
     );
   }
 
   if (loading || !schedule) {
     return (
-      <section className="surface-card rounded-[30px] p-5 lg:p-6">
+      <section className="surface-card rounded-[24px] p-4 sm:rounded-[30px] sm:p-5 lg:p-6">
         <p className="text-sm text-muted">Загрузка расписания...</p>
       </section>
     );
@@ -175,11 +199,11 @@ export function ScheduleManagement() {
   return (
     <div className="space-y-5">
       <section className="grid gap-4 xl:grid-cols-[1.08fr_0.92fr]">
-        <div className="surface-card rounded-[30px] p-5 lg:p-6">
+        <div className="surface-card rounded-[24px] p-4 sm:rounded-[30px] sm:p-5 lg:p-6">
           <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
             <div>
               <span className="dashboard-chip">Служение</span>
-              <h2 className="mt-3 text-2xl font-semibold capitalize text-ink">{formatServiceDate(schedule.service_date)}</h2>
+              <h2 className="mt-3 text-xl font-semibold capitalize text-ink sm:text-2xl">{formatServiceDate(schedule.service_date)}</h2>
               <p className="mt-3 max-w-3xl text-sm leading-7 text-muted">
                 Неделя {schedule.week_id}. Здесь управляются позиции, напарники и фиксация человека на несколько служений подряд.
               </p>
@@ -213,14 +237,14 @@ export function ScheduleManagement() {
           ) : null}
         </div>
 
-        <aside className="surface-card-dark rounded-[30px] p-5 text-white lg:p-6">
+        <aside className="surface-card-dark rounded-[24px] p-4 text-white sm:rounded-[30px] sm:p-5 lg:p-6">
           <p className="text-xs font-semibold uppercase tracking-[0.22em] text-white/55">Моё участие</p>
           {myAssignments.length === 0 ? (
             <p className="mt-4 text-sm leading-7 text-white/76">На текущую неделю для тебя пока нет позиции.</p>
           ) : (
             <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
               {myAssignments.map((assignment) => (
-                <div key={assignment.id} className="rounded-2xl border border-white/12 bg-white/8 p-4">
+                <div key={assignment.id} className="rounded-2xl border border-white/12 bg-white/8 p-3.5 sm:p-4">
                   <p className="text-sm font-semibold">{assignment.position_name}</p>
                   <p className="mt-2 text-sm text-white/74">
                     {assignment.user_id === currentUser?.id ? 'Основной служитель' : 'Напарник'}
@@ -243,14 +267,14 @@ export function ScheduleManagement() {
           return (
             <div
               key={assignment.id}
-              className={`rounded-[30px] p-5 lg:p-6 ${
+              className={`rounded-[24px] p-4 sm:rounded-[30px] sm:p-5 lg:p-6 ${
                 isMine ? 'surface-card-strong ring-1 ring-brand/20' : 'surface-card'
               }`}
             >
               <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
                 <div>
                   <span className="dashboard-chip">Позиция</span>
-                  <h3 className="mt-3 text-2xl font-semibold text-ink">{assignment.position_name}</h3>
+                  <h3 className="mt-3 text-xl font-semibold text-ink sm:text-2xl">{assignment.position_name}</h3>
                   <div className="mt-4 grid gap-3 text-sm text-muted sm:grid-cols-2">
                     <div className="rounded-2xl border border-line/60 bg-white/70 px-4 py-3">
                       <p className="text-[11px] uppercase tracking-[0.18em] text-muted/80">Основной</p>

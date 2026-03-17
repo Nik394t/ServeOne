@@ -47,7 +47,7 @@ function StatCard({ label, value, tone = 'default' }: { label: string; value: st
   return (
     <div className="metric-card">
       <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted">{label}</p>
-      <p className={`mt-3 text-[28px] font-semibold leading-none ${accentClass}`}>{value}</p>
+      <p className={`mt-2.5 text-[22px] font-semibold leading-none sm:text-[26px] ${accentClass}`}>{value}</p>
     </div>
   );
 }
@@ -237,7 +237,7 @@ export function UsersManagement() {
 
   if (loading) {
     return (
-      <section className="surface-card rounded-[30px] p-5 lg:p-6">
+      <section className="surface-card rounded-[24px] p-4 sm:rounded-[30px] sm:p-5 lg:p-6">
         <p className="text-sm text-muted">Загрузка участников...</p>
       </section>
     );
@@ -253,11 +253,11 @@ export function UsersManagement() {
       </section>
 
       <section className="grid gap-4 xl:grid-cols-[1.35fr_0.65fr]">
-        <div className="surface-card rounded-[30px] p-5 lg:p-6">
+        <div className="surface-card rounded-[24px] p-4 sm:rounded-[30px] sm:p-5 lg:p-6">
           <div className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
             <div>
               <span className="dashboard-chip">Участники</span>
-              <h2 className="mt-3 text-2xl font-semibold text-ink">Управление командой</h2>
+              <h2 className="mt-3 text-xl font-semibold text-ink sm:text-2xl">Управление командой</h2>
               <p className="mt-3 max-w-3xl text-sm leading-7 text-muted">
                 Здесь creator и admin управляют доступом, активностью и профилями пользователей. Назначение админов доступно только creator.
               </p>
@@ -321,7 +321,7 @@ export function UsersManagement() {
               const canEdit = currentUser?.role === 'creator' || user.role === 'user';
 
               return (
-                <div key={user.id} className="surface-card-strong rounded-[26px] p-4 lg:p-5">
+                <div key={user.id} className="surface-card-strong rounded-[22px] p-3.5 sm:rounded-[26px] sm:p-4 lg:p-5">
                   <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
                     <div className="space-y-4">
                       <div className="flex flex-wrap items-center gap-2">

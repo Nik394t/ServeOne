@@ -1,6 +1,7 @@
 const API_BASE_STORAGE_KEY = 'serveone-cloud-api-base-url';
 const API_QUERY_PARAM = 'api';
 const DEFAULT_PROXY_API_BASE = '/api/backend';
+let refreshRequest: Promise<boolean> | null = null;
 
 function normalizeApiBase(value: string | null | undefined): string | null {
   if (!value) return null;
@@ -76,8 +77,8 @@ function buildApiUrl(path: string): string {
   return `${getRuntimeApiBase()}${normalizedPath}`;
 }
 
-export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
-  const response = await fetch(buildApiUrl(path), {
+function buildRequestInit(init?: RequestInit): RequestInit {
+  return {
     ...init,
     credentials: 'include',
     headers: {
@@ -85,7 +86,37 @@ export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> 
       ...(init?.headers || {})
     },
     cache: 'no-store'
-  });
+  };
+}
+
+function shouldAttemptRefresh(path: string, status: number): boolean {
+  if (status !== 401) return false;
+  const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+  return !['/auth/login', '/auth/logout', '/auth/refresh'].includes(normalizedPath);
+}
+
+async function tryRefreshSession(): Promise<boolean> {
+  if (typeof window === 'undefined') return false;
+  if (!refreshRequest) {
+    refreshRequest = fetch(buildApiUrl('/auth/refresh'), buildRequestInit({ method: 'POST' }))
+      .then((response) => response.ok)
+      .catch(() => false)
+      .finally(() => {
+        refreshRequest = null;
+      });
+  }
+  return refreshRequest;
+}
+
+export async function apiFetch<T>(path: string, init?: RequestInit, options?: { skipRefresh?: boolean }): Promise<T> {
+  const response = await fetch(buildApiUrl(path), buildRequestInit(init));
+
+  if (!response.ok && !options?.skipRefresh && shouldAttemptRefresh(path, response.status)) {
+    const refreshed = await tryRefreshSession();
+    if (refreshed) {
+      return apiFetch<T>(path, init, { skipRefresh: true });
+    }
+  }
 
   if (!response.ok) {
     const payload = await response.json().catch(() => null);

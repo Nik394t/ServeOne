@@ -64,7 +64,7 @@ function StatCard({
   return (
     <div className={`metric-card ${toneClass}`}>
       <p className="text-xs uppercase tracking-[0.16em] text-muted">{label}</p>
-      <p className="mt-3 text-2xl font-semibold">{value}</p>
+      <p className="mt-2.5 text-xl font-semibold sm:text-2xl">{value}</p>
       {note ? <p className="mt-2 text-sm leading-6 text-muted">{note}</p> : null}
     </div>
   );
@@ -176,7 +176,7 @@ export function DashboardHome() {
 
   if (loading) {
     return (
-      <section className="rounded-[28px] border border-line/70 bg-panel p-5 shadow-panel lg:p-6">
+      <section className="rounded-[24px] border border-line/70 bg-panel p-4 shadow-panel sm:rounded-[28px] sm:p-5 lg:p-6">
         <p className="text-sm text-muted">Загрузка главной страницы...</p>
       </section>
     );
@@ -184,7 +184,7 @@ export function DashboardHome() {
 
   if (!user) {
     return (
-      <section className="rounded-[28px] border border-line/70 bg-panel p-5 shadow-panel lg:p-6">
+      <section className="rounded-[24px] border border-line/70 bg-panel p-4 shadow-panel sm:rounded-[28px] sm:p-5 lg:p-6">
         <p className="text-sm text-accent">{error || 'Профиль пользователя не найден'}</p>
       </section>
     );
@@ -196,9 +196,9 @@ export function DashboardHome() {
     return (
       <div className="space-y-4">
         <section className="grid gap-4 xl:grid-cols-[1.15fr_0.85fr]">
-          <div className="surface-card-strong rounded-[30px] p-5 lg:p-6">
+          <div className="surface-card-strong rounded-[24px] p-4 sm:rounded-[30px] sm:p-5 lg:p-6">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-brand">Моя неделя</p>
-            <h2 className="mt-2 text-2xl font-semibold tracking-[-0.03em] text-ink">Ближайшее служение</h2>
+            <h2 className="mt-2 text-xl font-semibold tracking-[-0.03em] text-ink sm:text-2xl">Ближайшее служение</h2>
             <p className="mt-3 max-w-3xl text-sm leading-7 text-muted">
               Дата: {formatDate(userPayload.schedule.service_date)}. Здесь собрана твоя личная сводка: назначения, чек-листы и непрочитанные сообщения.
             </p>
@@ -209,7 +209,7 @@ export function DashboardHome() {
             </div>
           </div>
 
-          <aside className="surface-card-dark rounded-[30px] p-5 text-white lg:p-6">
+          <aside className="surface-card-dark rounded-[24px] p-4 text-white sm:rounded-[30px] sm:p-5 lg:p-6">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-white/55">Быстрые действия</p>
             <div className="mt-5 grid gap-3">
               <QuickLink href="/dashboard/messages" title="Открыть сообщения" body="Посмотри входящие и ответы администраторов." tone="dark" />
@@ -220,11 +220,11 @@ export function DashboardHome() {
         </section>
 
         <section className="grid gap-4 xl:grid-cols-[1fr_1fr]">
-          <div className="surface-card rounded-[30px] p-5 lg:p-6">
+          <div className="surface-card rounded-[24px] p-4 sm:rounded-[30px] sm:p-5 lg:p-6">
             <div className="flex items-center justify-between gap-3">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.22em] text-brand">Мои позиции</p>
-                <h3 className="mt-2 text-xl font-semibold text-ink">Назначения на ближайшее служение</h3>
+                <h3 className="mt-2 text-lg font-semibold text-ink sm:text-xl">Назначения на ближайшее служение</h3>
               </div>
             </div>
             <div className="mt-6 grid gap-3">
@@ -253,9 +253,9 @@ export function DashboardHome() {
           </div>
 
           <div className="space-y-4">
-            <div className="surface-card rounded-[30px] p-5 lg:p-6">
+            <div className="surface-card rounded-[24px] p-4 sm:rounded-[30px] sm:p-5 lg:p-6">
               <p className="text-xs font-semibold uppercase tracking-[0.22em] text-brand">Чек-листы</p>
-              <h3 className="mt-2 text-xl font-semibold text-ink">Мои инструктажи</h3>
+              <h3 className="mt-2 text-lg font-semibold text-ink sm:text-xl">Мои инструктажи</h3>
               <ProgressBar value={checklistStats.percent} />
               <div className="mt-6 grid gap-3">
                 {myInstructions.length === 0 ? (
@@ -275,9 +275,9 @@ export function DashboardHome() {
               </div>
             </div>
 
-            <div className="surface-card rounded-[30px] p-5 lg:p-6">
+            <div className="surface-card rounded-[24px] p-4 sm:rounded-[30px] sm:p-5 lg:p-6">
               <p className="text-xs font-semibold uppercase tracking-[0.22em] text-brand">Команда</p>
-              <h3 className="mt-2 text-xl font-semibold text-ink">Ближайшие дни рождения</h3>
+              <h3 className="mt-2 text-lg font-semibold text-ink sm:text-xl">Ближайшие дни рождения</h3>
               <div className="mt-6 grid gap-3">
                 {nearestBirthdays.length === 0 ? (
                   <div className="metric-card border-dashed p-4 text-sm text-muted">
@@ -308,7 +308,7 @@ export function DashboardHome() {
 
   if (!reportPayload) {
     return (
-      <section className="rounded-[28px] border border-line/70 bg-panel p-5 shadow-panel lg:p-6">
+      <section className="rounded-[24px] border border-line/70 bg-panel p-4 shadow-panel sm:rounded-[28px] sm:p-5 lg:p-6">
         <p className="text-sm text-accent">{error || 'Не удалось построить сводку'}</p>
       </section>
     );
@@ -319,11 +319,11 @@ export function DashboardHome() {
   return (
     <div className="space-y-4">
       <section className="grid gap-4 xl:grid-cols-[1.15fr_0.85fr]">
-        <div className="surface-card-strong rounded-[30px] p-5 lg:p-6">
+        <div className="surface-card-strong rounded-[24px] p-4 sm:rounded-[30px] sm:p-5 lg:p-6">
           <p className="text-xs font-semibold uppercase tracking-[0.22em] text-brand">
             {isCreator ? 'Управление системой' : 'Операционная смена'}
           </p>
-          <h2 className="mt-2 text-2xl font-semibold text-ink">
+          <h2 className="mt-2 text-xl font-semibold text-ink sm:text-2xl">
             {isCreator ? 'Сводка создателя' : 'Сводка администратора'}
           </h2>
           <p className="mt-3 max-w-3xl text-sm leading-7 text-muted">
@@ -352,7 +352,7 @@ export function DashboardHome() {
           </div>
         </div>
 
-        <aside className="surface-card-dark rounded-[30px] p-5 text-white lg:p-6">
+        <aside className="surface-card-dark rounded-[24px] p-4 text-white sm:rounded-[30px] sm:p-5 lg:p-6">
           <p className="text-xs font-semibold uppercase tracking-[0.22em] text-white/55">Быстрые действия</p>
           <div className="mt-5 grid gap-3">
             {isCreator ? (

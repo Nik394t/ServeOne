@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 
 import { apiFetch, AuthResponse } from '@/lib/api';
@@ -13,6 +13,11 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const [user, setUser] = useState<AuthResponse['user'] | null>(null);
   const [resolved, setResolved] = useState(false);
+  const pathnameRef = useRef(pathname);
+
+  useEffect(() => {
+    pathnameRef.current = pathname;
+  }, [pathname]);
 
   useEffect(() => {
     apiFetch<AuthResponse>('/auth/me')
@@ -23,7 +28,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
       .catch(() => {
         setUser(null);
         setResolved(true);
-        router.replace('/login');
+        router.replace(`/login?next=${encodeURIComponent(pathnameRef.current)}`);
       });
   }, [router]);
 
@@ -38,8 +43,8 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
 
   if (!resolved || !user) {
     return (
-      <div className="min-h-screen p-3 text-ink sm:p-4 lg:p-5">
-        <div className="mx-auto max-w-[1600px] rounded-[32px] border border-white/70 bg-white/60 p-6 shadow-shell backdrop-blur">
+      <div className="min-h-screen p-2 text-ink sm:p-4 lg:p-5">
+        <div className="mx-auto max-w-[1600px] rounded-[24px] border border-white/70 bg-white/60 p-4 shadow-shell backdrop-blur sm:rounded-[32px] sm:p-6">
           <p className="text-sm text-muted">Проверка доступа...</p>
         </div>
       </div>
@@ -48,8 +53,8 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
 
   if (!canAccessPath(pathname, user.role)) {
     return (
-      <div className="min-h-screen p-3 text-ink sm:p-4 lg:p-5">
-        <div className="mx-auto max-w-[1600px] rounded-[32px] border border-white/70 bg-white/60 p-6 shadow-shell backdrop-blur">
+      <div className="min-h-screen p-2 text-ink sm:p-4 lg:p-5">
+        <div className="mx-auto max-w-[1600px] rounded-[24px] border border-white/70 bg-white/60 p-4 shadow-shell backdrop-blur sm:rounded-[32px] sm:p-6">
           <p className="text-sm text-muted">Перенаправление...</p>
         </div>
       </div>
@@ -57,22 +62,22 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="relative min-h-screen overflow-hidden p-3 text-ink sm:p-4 lg:p-5">
+    <div className="relative min-h-screen overflow-hidden p-2 text-ink sm:p-4 lg:p-5">
       <div className="pointer-events-none absolute inset-x-0 top-0 h-[360px] bg-[radial-gradient(circle_at_top_left,_rgba(40,94,168,0.14),_transparent_44%),radial-gradient(circle_at_top_right,_rgba(197,77,83,0.12),_transparent_28%)]" />
-      <div className="mx-auto grid min-h-[calc(100vh-1.5rem)] max-w-[1600px] gap-4 lg:grid-cols-[280px_minmax(0,1fr)]">
+      <div className="mx-auto grid min-h-[calc(100vh-1rem)] max-w-[1600px] gap-3 sm:min-h-[calc(100vh-1.5rem)] sm:gap-4 lg:grid-cols-[280px_minmax(0,1fr)]">
         <div className="hidden lg:block">
           <SidebarNav role={user.role} fullName={user.full_name || user.login} />
         </div>
 
-        <main className="surface-card relative flex min-h-full flex-col gap-4 rounded-[32px] p-4 pb-24 lg:p-5 lg:pb-5">
-          <header className="surface-card-strong flex flex-col gap-4 rounded-[28px] px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+        <main className="surface-card relative flex min-h-full flex-col gap-3 rounded-[24px] p-3 pb-20 sm:gap-4 sm:rounded-[32px] sm:p-4 sm:pb-24 lg:p-5 lg:pb-5">
+          <header className="surface-card-strong flex flex-col gap-3 rounded-[22px] px-4 py-3 sm:gap-4 sm:rounded-[28px] sm:px-5 sm:py-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.22em] text-brand">ServeOne Workspace</p>
-              <h1 className="mt-2 text-[1.7rem] font-semibold tracking-[-0.03em] text-ink sm:text-[1.95rem]">
+              <h1 className="mt-2 text-[1.35rem] font-semibold tracking-[-0.03em] text-ink sm:text-[1.7rem] lg:text-[1.95rem]">
                 {getTitleForPath(pathname)}
               </h1>
             </div>
-            <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-line/70 bg-white/90 px-3 py-3 text-sm text-muted">
+            <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-line/70 bg-white/90 px-3 py-2.5 text-xs text-muted sm:text-sm">
               <span className="inline-flex h-2.5 w-2.5 rounded-full bg-brand" />
               <span className="font-medium text-ink">{user.full_name || user.login}</span>
               <span className="dashboard-chip">{user.role}</span>

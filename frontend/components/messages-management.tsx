@@ -124,7 +124,7 @@ export function MessagesManagement() {
 
   if (loading || !payload) {
     return (
-      <section className="surface-card rounded-[30px] p-5 lg:p-6">
+      <section className="surface-card rounded-[24px] p-4 sm:rounded-[30px] sm:p-5 lg:p-6">
         <p className="text-sm text-muted">Загрузка сообщений...</p>
       </section>
     );
@@ -133,11 +133,11 @@ export function MessagesManagement() {
   return (
     <div className="space-y-5">
       <section className="grid gap-4 xl:grid-cols-[1.08fr_0.92fr]">
-        <div className="surface-card rounded-[30px] p-5 lg:p-6">
+        <div className="surface-card rounded-[24px] p-4 sm:rounded-[30px] sm:p-5 lg:p-6">
           <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
             <div>
               <span className="dashboard-chip">Сообщения</span>
-              <h2 className="mt-3 text-2xl font-semibold text-ink">Inbox и переписка</h2>
+              <h2 className="mt-3 text-xl font-semibold text-ink sm:text-2xl">Inbox и переписка</h2>
               <p className="mt-3 max-w-3xl text-sm leading-7 text-muted">
                 Здесь объединены системные рассылки и личные сообщения. Пользователь пишет админу, админ отвечает прямо из этого же раздела.
               </p>
@@ -166,7 +166,7 @@ export function MessagesManagement() {
           </div>
         </div>
 
-        <aside className="surface-card-dark rounded-[30px] p-5 text-white lg:p-6">
+        <aside className="surface-card-dark rounded-[24px] p-4 text-white sm:rounded-[30px] sm:p-5 lg:p-6">
           <p className="text-xs font-semibold uppercase tracking-[0.22em] text-white/55">Новое сообщение</p>
           <div className="mt-4 grid gap-3">
             <select
@@ -208,11 +208,11 @@ export function MessagesManagement() {
         </aside>
       </section>
 
-      <section className="surface-card rounded-[30px] p-5 lg:p-6">
+      <section className="surface-card rounded-[24px] p-4 sm:rounded-[30px] sm:p-5 lg:p-6">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <span className="dashboard-chip">Лента</span>
-            <h3 className="mt-3 text-xl font-semibold text-ink">Последние сообщения</h3>
+            <h3 className="mt-3 text-lg font-semibold text-ink sm:text-xl">Последние сообщения</h3>
           </div>
           <div className="rounded-2xl border border-line/70 bg-white/80 px-4 py-3 text-sm font-semibold text-muted">
             Контактов: {payload.contacts.length}
@@ -231,7 +231,7 @@ export function MessagesManagement() {
               return (
                 <div
                   key={`${item.kind}-${item.record_id}`}
-                  className={`rounded-[24px] p-4 lg:p-5 ${
+                  className={`rounded-[22px] p-3.5 sm:rounded-[24px] sm:p-4 lg:p-5 ${
                     item.is_read ? 'surface-card-strong' : 'surface-card-strong ring-1 ring-brand/20'
                   }`}
                 >

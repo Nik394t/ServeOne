@@ -123,6 +123,16 @@ body {
 
 @media (max-width: 640px) {
   html, body {
-    font-size: 15px;
+    font-size: 14px;
+  }
+
+  .metric-card {
+    padding: 0.875rem;
+  }
+
+  .dashboard-chip {
+    padding: 0.2rem 0.65rem;
+    font-size: 10px;
+    letter-spacing: 0.14em;
   }
 }

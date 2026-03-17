@@ -298,7 +298,7 @@ export function SettingsManagement() {
 
   if (loading || !pushState || !currentUser) {
     return (
-      <section className="surface-card rounded-[30px] p-5 lg:p-6">
+      <section className="surface-card rounded-[24px] p-4 sm:rounded-[30px] sm:p-5 lg:p-6">
         <p className="text-sm text-muted">Загрузка настроек...</p>
       </section>
     );
@@ -307,9 +307,9 @@ export function SettingsManagement() {
   return (
     <div className="space-y-5">
       <section className="grid gap-4 xl:grid-cols-[1.15fr_0.85fr]">
-        <div className="surface-card rounded-[30px] p-5 lg:p-6">
+        <div className="surface-card rounded-[24px] p-4 sm:rounded-[30px] sm:p-5 lg:p-6">
           <span className="dashboard-chip">Настройки</span>
-          <h2 className="mt-3 text-2xl font-semibold text-ink">Устройство, вход и уведомления</h2>
+          <h2 className="mt-3 text-xl font-semibold text-ink sm:text-2xl">Устройство, вход и уведомления</h2>
           <p className="mt-3 max-w-3xl text-sm leading-7 text-muted">
             Здесь включается PWA-режим: установка приложения, системные push-уведомления и проверка текущей подписки устройства.
           </p>
@@ -346,7 +346,7 @@ export function SettingsManagement() {
                   Для режима GitHub Pages frontend подключается к backend по внешнему HTTPS URL.
                 </p>
               </div>
-              <div className="dashboard-chip">{resolvedApiBase}</div>
+              <div className="dashboard-chip max-w-[180px] truncate sm:max-w-[280px]">{resolvedApiBase}</div>
             </div>
             <div className="mt-3 flex flex-col gap-3 sm:flex-row">
               <input
@@ -373,7 +373,7 @@ export function SettingsManagement() {
           </div>
         </div>
 
-        <aside className="surface-card-dark rounded-[30px] p-5 text-white lg:p-6">
+        <aside className="surface-card-dark rounded-[24px] p-4 text-white sm:rounded-[30px] sm:p-5 lg:p-6">
           <p className="text-xs font-semibold uppercase tracking-[0.22em] text-white/55">PWA</p>
           <h3 className="mt-3 text-xl font-semibold">Установка на рабочий стол</h3>
           <p className="mt-3 text-sm leading-7 text-white/75">
@@ -407,7 +407,7 @@ export function SettingsManagement() {
       </section>
 
       <section className="grid gap-4 xl:grid-cols-[1fr_0.9fr]">
-        <div className="surface-card rounded-[30px] p-5 lg:p-6">
+        <div className="surface-card rounded-[24px] p-4 sm:rounded-[30px] sm:p-5 lg:p-6">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <span className="dashboard-chip">Push</span>
@@ -474,7 +474,7 @@ export function SettingsManagement() {
           </div>
         </div>
 
-        <div className="surface-card rounded-[30px] p-5 lg:p-6">
+        <div className="surface-card rounded-[24px] p-4 sm:rounded-[30px] sm:p-5 lg:p-6">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <span className="dashboard-chip">Подписки</span>

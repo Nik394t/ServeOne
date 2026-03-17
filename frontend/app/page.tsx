@@ -2,8 +2,8 @@ import { LoginForm } from '@/components/login-form';
 
 export default function HomePage() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[radial-gradient(circle_at_top,_#fdfefe,_#eef3f8_42%,_#dce5f1_100%)] px-4 py-8">
-      <div className="grid w-full max-w-6xl gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
+    <div className="flex min-h-screen items-center justify-center bg-[radial-gradient(circle_at_top,_#fdfefe,_#eef3f8_42%,_#dce5f1_100%)] px-3 py-5 sm:px-4 sm:py-8">
+      <div className="grid w-full max-w-6xl gap-5 sm:gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
         <div className="hidden rounded-[32px] border border-white/70 bg-[#18304f] p-8 text-white shadow-shell lg:block xl:p-10">
           <p className="text-xs uppercase tracking-[0.28em] text-white/60">ServeOne</p>
           <h2 className="mt-6 max-w-xl text-5xl font-semibold leading-tight">
