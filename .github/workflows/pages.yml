@@ -6,6 +6,9 @@ on:
       - main
   workflow_dispatch:
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 permissions:
   contents: read
   pages: write
@@ -31,6 +34,8 @@ jobs:
           cache-dependency-path: frontend/package-lock.json
 
       - uses: actions/configure-pages@v5
+        with:
+          enablement: true
 
       - run: npm ci
       - run: npm run lint
